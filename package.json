@@ -18,7 +18,9 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^0.1.8",
     "@ai-sdk/openai": "1.1.9",
+    "@ai-sdk/togetherai": "^0.1.9",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-python": "^6.1.6",
     "@codemirror/state": "^6.5.0",

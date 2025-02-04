@@ -37,6 +37,7 @@ import {
 import { generateTitleFromUserMessage } from '../../actions';
 import FirecrawlApp from '@mendable/firecrawl-js';
 import { openai } from '@ai-sdk/openai';
+import { deepseek } from '@ai-sdk/deepseek';
 
 export const maxDuration = 300;
 
@@ -57,7 +58,7 @@ const app = new FirecrawlApp({
   apiKey: process.env.FIRECRAWL_API_KEY || '',
 });
 
-const reasoningModel = openai('o1-mini');
+const reasoningModel = customModel(process.env.REASONING_MODEL || 'o1-mini', true);
 
 export async function POST(request: Request) {
   const {
@@ -768,7 +769,7 @@ export async function POST(request: Request) {
                     Math.round((timeRemaining / 1000 / 60) * 10) / 10;
 
                   const result = await generateObject({
-                    model: openai('gpt-4o'), // feel free to change to a reasoning model, if so change the output to not be json (not supported)
+                    model: customModel(model.apiIdentifier, true),
                     schema: z.object({
                       analysis: z.object({
                         summary: z.string(),

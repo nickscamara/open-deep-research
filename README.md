@@ -1,4 +1,3 @@
-
 # Open Deep Research
 
 An Open-Source clone of Open AI's Deep Research experiment. Instead of using a fine-tuned version of o3, this method uses [Firecrawl's extract + search](https://firecrawl.dev/) with a reasoning model to deep research the web.
@@ -64,3 +63,62 @@ pnpm dev
 ```
 
 Your app template should now be running on [localhost:3000](http://localhost:3000/).
+
+
+# Models dependencies
+
+If you want to use a model other than the default, you will need to install the dependencies for that model.
+
+
+DeepSeek:
+```bash
+pnpm add @ai-sdk/deepseek
+```
+
+TogetherAI's Deepseek:
+```bash
+pnpm add @ai-sdk/togetherai
+```
+
+Note: Maximum rate limit https://docs.together.ai/docs/rate-limits
+
+## Reasoning Model Configuration
+
+The application uses a separate model for reasoning tasks (like research analysis and structured outputs). This can be configured using the `REASONING_MODEL` environment variable.
+
+### Available Options
+
+| Provider | Models | Notes |
+|----------|--------|-------|
+| OpenAI | `gpt-4o`, `o1`, `o3-mini` | Native JSON schema support |
+| TogetherAI | `deepseek-ai/DeepSeek-R1` | Requires `BYPASS_JSON_VALIDATION=true` |
+| Deepseek | `deepseek-reasoner` | Requires `BYPASS_JSON_VALIDATION=true` |
+
+### Important Notes
+
+- Only certain OpenAI models (gpt-4o, o1, o3-mini) natively support structured JSON outputs
+- Other models (deepseek-reasoner, gpt-4o) can be used but may require disabling JSON schema validation
+- When using models that don't support JSON schema:
+  - Set `BYPASS_JSON_VALIDATION=true` in your .env file
+  - This allows non-OpenAI models to be used for reasoning tasks
+  - Note: Without JSON validation, the model responses may be less structured
+- The reasoning model is used for tasks that require structured thinking and analysis, such as:
+  - Research analysis
+  - Document suggestions
+  - Data extraction
+  - Structured responses
+- If no `REASONING_MODEL` is specified, it defaults to `o1-mini`
+- If an invalid model is specified, it will fall back to `o1-mini`
+
+### Usage
+
+Add to your `.env` file:
+```bash
+# Choose one of: deepseek-reasoner, deepseek-ai/DeepSeek-R1
+REASONING_MODEL=deepseek-reasoner
+
+# Required when using models that don't support JSON schema (like deepseek-reasoner)
+BYPASS_JSON_VALIDATION=true
+```
+
+The reasoning model is automatically used when the application needs structured outputs or complex analysis, regardless of which model the user has selected for general chat.

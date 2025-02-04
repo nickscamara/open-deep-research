@@ -55,7 +55,16 @@ export function Chat({
           'Too many requests. Please wait a few seconds before sending another message.',
         );
       } else {
-        toast.error('An error occurred while sending your message.');
+        toast.error(`Error: ${error.message || 'An unknown error occurred'}`);
+
+        if (error instanceof Response || 'status' in error) {
+          try {
+            const errorData = await (error as Response).json();
+            console.error('Response error details:', errorData);
+          } catch (e) {
+            console.error('Could not parse error response:', e);
+          }
+        }
       }
     },
   });
