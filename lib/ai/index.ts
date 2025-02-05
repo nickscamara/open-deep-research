@@ -5,13 +5,17 @@ import { togetherai } from '@ai-sdk/togetherai';
 import { deepseek } from '@ai-sdk/deepseek';
 
 import { customMiddleware } from "./custom-middleware";
+// Type definition for valid reasoning models used for research and structured outputs
+type ReasoningModel = typeof VALID_REASONING_MODELS[number];
 
-// Valid reasoning models
+// Valid reasoning models that can be used for research analysis and structured outputs
 const VALID_REASONING_MODELS = [
-  'o1', 'o1-mini', 'o3-mini',
-  'deepseek-ai/DeepSeek-R1',
-  'deepseek-reasoner',
-  'gpt-4o'
+  // OpenAI models with native JSON schema support
+  'o1', 'o1-mini', 'o3-mini', 'gpt-4o',
+  
+  // Third-party reasoning models (require BYPASS_JSON_VALIDATION)
+  'deepseek-ai/DeepSeek-R1', // TogetherAI's DeepSeek
+  'deepseek-reasoner' // Deepseek's own model
 ] as const;
 
 // Models that support JSON structured output
