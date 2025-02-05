@@ -832,7 +832,7 @@ export async function POST(request: Request) {
                     }
                     return [];
                   } catch (error) {
-                    console.warn(`Extraction failed for ${url}:`);
+                    // console.warn(`Extraction failed for ${url}:`);
                     return [];
                   }
                 });
