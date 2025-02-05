@@ -1,9 +1,10 @@
 import { openai } from '@ai-sdk/openai';
 import { experimental_wrapLanguageModel as wrapLanguageModel } from 'ai';
+import { openrouter } from '@openrouter/ai-sdk-provider';
 import { togetherai } from '@ai-sdk/togetherai';
 import { deepseek } from '@ai-sdk/deepseek';
 
-import { customMiddleware } from './custom-middleware';
+import { customMiddleware } from "./custom-middleware";
 
 // Valid reasoning models
 const VALID_REASONING_MODELS = [
@@ -48,8 +49,18 @@ function getReasoningModel(modelId: string) {
 }
 
 export const customModel = (apiIdentifier: string, forReasoning: boolean = false) => {
+  // Check which API key is available
+  const hasOpenRouterKey = process.env.OPENROUTER_API_KEY && process.env.OPENROUTER_API_KEY !== "****";
+
   // If it's for reasoning, get the appropriate reasoning model
   const modelId = forReasoning ? getReasoningModel(apiIdentifier) : apiIdentifier;
+
+  if (hasOpenRouterKey) {
+    return wrapLanguageModel({
+      model: openrouter(modelId),
+      middleware: customMiddleware,
+    });
+  }
 
   // Select provider based on model
   const model = modelId === 'deepseek-ai/DeepSeek-R1'
