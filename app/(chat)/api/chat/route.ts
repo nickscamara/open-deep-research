@@ -144,8 +144,13 @@ export async function POST(request: Request) {
     return new Response(`Too many requests`, { status: 429 });
   }
 
-  const model = models.find((model) => model.id === modelId);
-  const reasoningModel = reasoningModels.find((model) => model.id === reasoningModelId);
+  const model = process.env.CUSTOM_OPENAI_URL
+    ? { apiIdentifier: process.env.CUSTOM_OPENAI_MODEL || ''}
+    : models.find((model) => model.id === modelId);
+
+  const reasoningModel = process.env.CUSTOM_OPENAI_REASONING_MODEL
+    ? { apiIdentifier: process.env.CUSTOM_OPENAI_REASONING_MODEL || '' }
+    : reasoningModels.find((model) => model.id === modelId);
 
   if (!model || !reasoningModel) {
     return new Response('Model not found', { status: 404 });
@@ -416,7 +421,8 @@ export async function POST(request: Request) {
                   });
 
                   try {
-                    const parsed = JSON.parse(result.text);
+                    const textCleaned = result.text.replace(/<think>[\s\S]*?<\/think>/g, '')
+                    const parsed = JSON.parse(textCleaned);
                     return parsed.analysis;
                   } catch (error) {
                     console.error('Failed to parse JSON response:', error);
