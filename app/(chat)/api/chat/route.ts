@@ -617,7 +617,7 @@ export async function POST(request: Request) {
           },
           extract: {
             description:
-              'Extract structured data from web pages. Use this to get wahtever data you need from a URL. Any time someone needs to gather data from something, use this tool.',
+              'Extract structured data from web pages. Use this to get whatever data you need from a URL. Any time someone needs to gather data from something, use this tool.',
             parameters: z.object({
               urls: z.array(z.string()).describe(
                 'Array of URLs to extract data from',
