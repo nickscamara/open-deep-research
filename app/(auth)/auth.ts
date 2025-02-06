@@ -14,12 +14,20 @@ async function createAnonymousUser() {
   const anonymousPassword = `anon_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
   try {
+    // First create the user
     await createUser(anonymousEmail, anonymousPassword);
-    const [user] = await getUser(anonymousEmail);
-    return user;
+    
+    // Then verify the user was created by fetching it
+    const users = await getUser(anonymousEmail);
+    if (users.length === 0) {
+      throw new Error('User was not created successfully');
+    }
+    
+    return users[0];
   } catch (error) {
     console.error('Failed to create anonymous user:', error);
-    return null;
+    // Instead of returning null, throw an error to prevent auth from proceeding
+    throw new Error('Anonymous user creation failed');
   }
 }
 
@@ -34,21 +42,41 @@ export const {
     Credentials({
       credentials: {},
       async authorize({ email, password }: any) {
-        // Handle anonymous access
-        if (!email && !password) {
-          return await createAnonymousUser();
-        }
+        try {
+          // Handle anonymous access
+          if (!email && !password) {
+            return await createAnonymousUser();
+          }
 
-        // Handle regular authentication
-        const users = await getUser(email);
-        if (users.length === 0) return null;
-        // biome-ignore lint: Forbidden non-null assertion.
-        const passwordsMatch = await compare(password, users[0].password!);
-        if (!passwordsMatch) return null;
-        return users[0] as any;
+          // Handle regular authentication
+          const users = await getUser(email);
+          if (users.length === 0) return null;
+          
+          // biome-ignore lint: Forbidden non-null assertion.
+          const passwordsMatch = await compare(password, users[0].password!);
+          if (!passwordsMatch) return null;
+          
+          return users[0] as any;
+        } catch (error) {
+          console.error('Authentication failed:', error);
+          return null;
+        }
       },
     }),
   ],
+  // Add proxy configuration for Docker environment
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      },
+    },
+  },
+  trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

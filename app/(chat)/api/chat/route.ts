@@ -22,6 +22,7 @@ import {
   deleteChatById,
   getChatById,
   getDocumentById,
+  getUser,
   saveChat,
   saveDocument,
   saveMessages,
@@ -84,7 +85,22 @@ export async function POST(request: Request) {
         });
       }
 
-      session = await auth();
+      // Wait for the session to be fully established
+      let retries = 3;
+      while (retries > 0) {
+        session = await auth();
+        
+        if (session?.user?.id) {
+          // Verify user exists in database
+          const users = await getUser(session.user.email as string);
+          if (users.length > 0) {
+            break;
+          }
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        retries--;
+      }
 
       if (!session?.user) {
         console.error('Failed to get session after creation');
@@ -100,6 +116,18 @@ export async function POST(request: Request) {
 
   if (!session?.user?.id) {
     return new Response('Failed to create session', { status: 500 });
+  }
+
+  // Verify user exists in database before proceeding
+  try {
+    const users = await getUser(session.user.email as string);
+    if (users.length === 0) {
+      console.error('User not found in database:', session.user);
+      return new Response('User not found', { status: 500 });
+    }
+  } catch (error) {
+    console.error('Error verifying user:', error);
+    return new Response('Failed to verify user', { status: 500 });
   }
 
   // Apply rate limiting
@@ -733,12 +761,12 @@ export async function POST(request: Request) {
 
               const addActivity = (activity: {
                 type:
-                  | 'search'
-                  | 'extract'
-                  | 'analyze'
-                  | 'reasoning'
-                  | 'synthesis'
-                  | 'thought';
+                | 'search'
+                | 'extract'
+                | 'analyze'
+                | 'reasoning'
+                | 'synthesis'
+                | 'thought';
                 status: 'pending' | 'complete' | 'error';
                 message: string;
                 timestamp: string;
@@ -783,8 +811,8 @@ export async function POST(request: Request) {
                     prompt: `You are a research agent analyzing findings about: ${topic}
                             You have ${timeRemainingMinutes} minutes remaining to complete the research but you don't need to use all of it.
                             Current findings: ${findings
-                              .map((f) => `[From ${f.source}]: ${f.text}`)
-                              .join('\n')}
+                        .map((f) => `[From ${f.source}]: ${f.text}`)
+                        .join('\n')}
                             What has been learned? What gaps remain? What specific aspects should be investigated next if any?
                             If you need to search for more information, set nextSearchTopic.
                             If you need to search for more information in a specific URL, set urlToSearch.
@@ -831,7 +859,7 @@ export async function POST(request: Request) {
                       return [{ text: result.data, source: url }];
                     }
                     return [];
-                  } catch (error) {
+                  } catch {
                     // console.warn(`Extraction failed for ${url}:`);
                     return [];
                   }
@@ -983,11 +1011,11 @@ export async function POST(request: Request) {
                   maxTokens: 16000,
                   prompt: `Create a comprehensive long analysis of ${topic} based on these findings:
                           ${researchState.findings
-                            .map((f) => `[From ${f.source}]: ${f.text}`)
-                            .join('\n')}
+                      .map((f) => `[From ${f.source}]: ${f.text}`)
+                      .join('\n')}
                           ${researchState.summaries
-                            .map((s) => `[Summary]: ${s}`)
-                            .join('\n')}
+                      .map((s) => `[Summary]: ${s}`)
+                      .join('\n')}
                           Provide key insights, conclusions, and any remaining uncertainties. Include citations to sources where appropriate. This analysis should be very comprehensive and full of details. It is expected to be long.`,
                 });
 
