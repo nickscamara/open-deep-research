@@ -66,11 +66,9 @@ pnpm dev
 
 Your app template should now be running on [localhost:3000](http://localhost:3000/).
 
-
 # Models dependencies
 
 If you want to use a model other than the default, you will need to install the dependencies for that model.
-
 
 DeepSeek:
 ```bash
@@ -99,7 +97,9 @@ The application uses a separate model for reasoning tasks (like research analysi
 ### Important Notes
 
 - Only certain OpenAI models (gpt-4o, o1, o3-mini) natively support structured JSON outputs
-- Other models (deepseek-reasoner, gpt-4o) can be used but may require disabling JSON schema validation
+
+- Other models (deepseek-reasoner) can be used but may require disabling JSON schema validation
+
 - When using models that don't support JSON schema:
   - Set `BYPASS_JSON_VALIDATION=true` in your .env file
   - This allows non-OpenAI models to be used for reasoning tasks
@@ -117,7 +117,11 @@ The application uses a separate model for reasoning tasks (like research analysi
 Add to your `.env` file:
 ```bash
 # Choose one of: deepseek-reasoner, deepseek-ai/DeepSeek-R1
+
 REASONING_MODEL=deepseek-reasoner
+
+REASONING_MODEL=deepseek-ai/DeepSeek-R1
+
 
 # Required when using models that don't support JSON schema (like deepseek-reasoner)
 BYPASS_JSON_VALIDATION=true
