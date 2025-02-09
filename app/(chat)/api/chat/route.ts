@@ -37,7 +37,7 @@ import {
 import { generateTitleFromUserMessage } from '../../actions';
 import FirecrawlApp from '@mendable/firecrawl-js';
 
-export const maxDuration = 300;
+export const maxDuration = 30;
 
 type AllowedTools =
   | 'requestSuggestions'
