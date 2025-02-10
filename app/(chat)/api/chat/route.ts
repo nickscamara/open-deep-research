@@ -39,7 +39,9 @@ import FirecrawlApp from '@mendable/firecrawl-js';
 import { openai } from '@ai-sdk/openai';
 import { deepseek } from '@ai-sdk/deepseek';
 
-export const maxDuration = 60;
+export const maxDuration = process.env.MAX_DURATION
+  ? parseInt(process.env.MAX_DURATION)
+  : 300;
 
 type AllowedTools =
   | 'requestSuggestions'
