@@ -12,10 +12,10 @@ type ReasoningModel = (typeof VALID_REASONING_MODELS)[number];
 const VALID_REASONING_MODELS = [
   "o1",
   "o1-mini",
-  "o3-mini",
   "openai/o3-mini",
   "deepseek-ai/DeepSeek-R1",
   "gpt-4o",
+  "google/gemini-2.0-flash-001",
 ] as const;
 
 // Models that support JSON structured output
@@ -23,8 +23,8 @@ const JSON_SUPPORTED_MODELS = [
   "gpt-4o",
   "gpt-4o-mini",
   "o1",
-  "o3-mini",
   "openai/o3-mini",
+  "google/gemini-2.0-flash-001",
 ] as const;
 
 // Helper to check if model supports JSON
@@ -68,7 +68,6 @@ export const customModel = (
   apiIdentifier: string,
   forReasoning: boolean = false,
 ) => {
-  console.log(`[customModel] apiIdentifier: ${apiIdentifier}`);
   // Check which API key is available
   const hasOpenRouterKey =
     process.env.OPENROUTER_API_KEY && process.env.OPENROUTER_API_KEY !== "****";
@@ -79,25 +78,20 @@ export const customModel = (
     : apiIdentifier;
 
   if (hasOpenRouterKey) {
-    const model = openrouter(modelId);
-    console.log(`[customModel] Using openrouter model: ${modelId}`);
-    const wrappedModel = wrapLanguageModel({
-      model,
+    return wrapLanguageModel({
+      model: openrouter(modelId),
       middleware: customMiddleware,
     });
-    console.log(`[customModel] Applying middleware to openrouter model`);
-    return wrappedModel;
   }
-  
 
+  // Select provider based on model
   const model =
     modelId === "deepseek-ai/DeepSeek-R1"
       ? togetherai(modelId)
       : openai(modelId);
-  const wrappedModel = wrapLanguageModel({
+
+  return wrapLanguageModel({
     model,
     middleware: customMiddleware,
   });
-  console.log(`[customModel] Applying middleware to model`);
-  return wrappedModel;
 };
