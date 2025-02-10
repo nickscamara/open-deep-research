@@ -12,7 +12,7 @@ type ReasoningModel = (typeof VALID_REASONING_MODELS)[number];
 const VALID_REASONING_MODELS = [
   "o1",
   "o1-mini",
-  "o3-mini",
+  "openai/o3-mini",
   "deepseek-ai/DeepSeek-R1",
   "gpt-4o",
   "google/gemini-2.0-flash-001",
@@ -23,7 +23,7 @@ const JSON_SUPPORTED_MODELS = [
   "gpt-4o",
   "gpt-4o-mini",
   "o1",
-  "o3-mini",
+  "openai/o3-mini",
   "google/gemini-2.0-flash-001",
 ] as const;
 
