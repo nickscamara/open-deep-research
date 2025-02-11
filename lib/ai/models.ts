@@ -19,6 +19,18 @@ export const models: Array<Model> = [
     label: 'GPT 4o Mini',
     apiIdentifier: 'gpt-4o-mini',
     description: 'Affordable for complex, multi-step tasks',
+  },
+  {
+    id: 'o3-mini',
+    label: 'OpenAI o3-Mini',
+    apiIdentifier: 'openai/o3-mini',
+    description: 'Cost Effective & Fast Reasoning Model',
+  },
+  {
+    id: 'gemini-2-flash',
+    label: 'Gemini 2.0 Flash',
+    apiIdentifier: 'google/gemini-2.0-flash-001',
+    description: 'Fast and powerful reasoning model with multimodal capabilities',
   }
 ] as const;
 
