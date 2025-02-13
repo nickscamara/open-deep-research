@@ -13,15 +13,18 @@ import { memo, useEffect } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { VisibilityType, VisibilitySelector } from './visibility-selector';
 import { useDeepResearch } from '@/lib/deep-research-context';
+import { models, reasoningModels } from '@/lib/ai/models';
 
 function PureChatHeader({
   chatId,
   selectedModelId,
+  selectedReasoningModelId,
   selectedVisibilityType,
   isReadonly,
 }: {
   chatId: string;
   selectedModelId: string;
+  selectedReasoningModelId: string;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
 }) {
@@ -59,7 +62,17 @@ function PureChatHeader({
 
       {!isReadonly && (
         <ModelSelector
+          label="Router Model"
+          models={models}
           selectedModelId={selectedModelId}
+          className="order-1 md:order-2"
+        />
+      )}
+      {!isReadonly && (
+        <ModelSelector
+          label="Reasoning Model"
+          models={reasoningModels}
+          selectedModelId={selectedReasoningModelId}
           className="order-1 md:order-2"
         />
       )}
@@ -142,5 +155,5 @@ function PureChatHeader({
 }
 
 export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId;
+  return prevProps.selectedModelId === nextProps.selectedModelId && prevProps.selectedReasoningModelId === nextProps.selectedReasoningModelId;
 });

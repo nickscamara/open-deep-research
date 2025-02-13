@@ -20,16 +20,20 @@ export function Chat({
   id,
   initialMessages,
   selectedModelId,
+  selectedReasoningModelId,
   selectedVisibilityType,
   isReadonly,
+
 }: {
   id: string;
   initialMessages: Array<Message>;
   selectedModelId: string;
+  selectedReasoningModelId: string;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
 }) {
   const { mutate } = useSWRConfig();
+  const [searchMode, setSearchMode] = useState<'search' | 'deep-research'>('search');
 
   const {
     messages,
@@ -43,7 +47,7 @@ export function Chat({
     reload,
   } = useChat({
     id,
-    body: { id, modelId: selectedModelId },
+    body: { id, modelId: selectedModelId, reasoningModelId: selectedReasoningModelId, experimental_deepResearch: searchMode === 'deep-research' },
     initialMessages,
     experimental_throttle: 100,
     onFinish: () => {
@@ -77,12 +81,17 @@ export function Chat({
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isBlockVisible = useBlockSelector((state) => state.isVisible);
 
+  const handleSearchModeChange = (mode: 'search' | 'deep-research') => {
+    setSearchMode(mode);
+  };
+
   return (
     <>
       <div className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader
           chatId={id}
           selectedModelId={selectedModelId}
+          selectedReasoningModelId={selectedReasoningModelId}
           selectedVisibilityType={selectedVisibilityType}
           isReadonly={isReadonly}
         />
@@ -112,6 +121,8 @@ export function Chat({
               messages={messages}
               setMessages={setMessages}
               append={append}
+              searchMode={searchMode}
+              setSearchMode={handleSearchModeChange}
             />
           )}
         </form>

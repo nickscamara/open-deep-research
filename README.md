@@ -33,6 +33,16 @@ This template ships with OpenAI `gpt-4o` as the default. However, with the [AI S
 
 This repo is compatible with [OpenRouter](https://openrouter.ai/) and [OpenAI](https://openai.com/). To use OpenRouter, you need to set the `OPENROUTER_API_KEY` environment variable.
 
+## Function Max Duration
+
+By default, the function timeout is set to 300 seconds (5 minutes). If you're using Vercel's Hobby tier, you'll need to reduce this to 60 seconds. You can adjust this by changing the `MAX_DURATION` environment variable in your `.env` file:
+
+```bash
+MAX_DURATION=60
+```
+
+Learn more about it [here](https://vercel.com/docs/functions/configuring-functions/duration#duration-limits)
+
 ## Deploy Your Own
 
 You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
@@ -72,11 +82,6 @@ Your app template should now be running on [localhost:3000](http://localhost:300
 If you want to use a model other than the default, you will need to install the dependencies for that model.
 
 
-DeepSeek:
-```bash
-pnpm add @ai-sdk/deepseek
-```
-
 TogetherAI's Deepseek:
 ```bash
 pnpm add @ai-sdk/togetherai
@@ -94,7 +99,6 @@ The application uses a separate model for reasoning tasks (like research analysi
 |----------|--------|-------|
 | OpenAI | `gpt-4o`, `o1`, `o3-mini` | Native JSON schema support |
 | TogetherAI | `deepseek-ai/DeepSeek-R1` | Requires `BYPASS_JSON_VALIDATION=true` |
-| Deepseek | `deepseek-reasoner` | Requires `BYPASS_JSON_VALIDATION=true` |
 
 ### Important Notes
 
@@ -117,7 +121,7 @@ The application uses a separate model for reasoning tasks (like research analysi
 Add to your `.env` file:
 ```bash
 # Choose one of: deepseek-reasoner, deepseek-ai/DeepSeek-R1
-REASONING_MODEL=deepseek-reasoner
+REASONING_MODEL=deepseek-ai/DeepSeek-R1
 
 # Required when using models that don't support JSON schema (like deepseek-reasoner)
 BYPASS_JSON_VALIDATION=true

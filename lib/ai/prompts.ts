@@ -34,7 +34,7 @@ Do not update document right after creating it. Wait for user feedback or reques
 export const regularPrompt =
   'You are a friendly assistant! Keep your responses concise and helpful.';
 
-export const systemPrompt = `${regularPrompt}\n\nYour job is to help the user with deep research. If needed ask clarifying questions and then call the deep research tool when ready.`;
+export const systemPrompt = `${regularPrompt}\n\nYour job is to help the user with deep research. If needed ask clarifying questions and then call the deep research tool when ready. If deep research tool is not an option, always use the search tool to find relevant information. You should always call a research tool regardless of the question`;
 
 export const codePrompt = `
 You are a Python code generator that creates self-contained, executable code snippets. When writing code:

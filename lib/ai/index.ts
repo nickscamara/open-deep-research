@@ -2,7 +2,6 @@ import { openai } from '@ai-sdk/openai';
 import { experimental_wrapLanguageModel as wrapLanguageModel } from 'ai';
 import { openrouter } from '@openrouter/ai-sdk-provider';
 import { togetherai } from '@ai-sdk/togetherai';
-import { deepseek } from '@ai-sdk/deepseek';
 
 import { customMiddleware } from "./custom-middleware";
 // Type definition for valid reasoning models used for research and structured outputs
@@ -12,12 +11,11 @@ type ReasoningModel = typeof VALID_REASONING_MODELS[number];
 const VALID_REASONING_MODELS = [
   'o1', 'o1-mini', 'o3-mini',
   'deepseek-ai/DeepSeek-R1',
-  'deepseek-reasoner',
   'gpt-4o'
 ] as const;
 
 // Models that support JSON structured output
-const JSON_SUPPORTED_MODELS = ['gpt-4o', 'gpt-4o-mini', 'o1', 'o3-mini'] as const;
+const JSON_SUPPORTED_MODELS = ['gpt-4o', 'gpt-4o-mini'] as const;
 
 // Helper to check if model supports JSON
 export const supportsJsonOutput = (modelId: string) =>
@@ -67,9 +65,9 @@ export const customModel = (apiIdentifier: string, forReasoning: boolean = false
   // Select provider based on model
   const model = modelId === 'deepseek-ai/DeepSeek-R1'
     ? togetherai(modelId)
-    : modelId === 'deepseek-reasoner'
-    ? deepseek(modelId)
     : openai(modelId);
+
+  console.log("Using model:", modelId);
 
   return wrapLanguageModel({
     model,

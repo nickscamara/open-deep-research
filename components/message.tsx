@@ -50,6 +50,47 @@ const PurePreviewMessage = ({
   const { addActivity, addSource, initProgress, setDepth, updateProgress } =
     useDeepResearch();
 
+  // Track sources from search and extract results
+  const [searchSources, setSearchSources] = useState<Array<{
+    title: string;
+    url: string;
+    description: string;
+    source: string;
+    relevance: number;
+  }>>([]);
+
+  useEffect(() => {
+    if (message.toolInvocations) {
+      const sources: Array<{
+        title: string;
+        url: string;
+        description: string;
+        source: string;
+        relevance: number;
+      }> = [];
+
+      message.toolInvocations.forEach((toolInvocation: any) => {
+        try {
+          if (toolInvocation.toolName === 'search' && toolInvocation.state === 'result') {
+            const searchResults = toolInvocation.result.data.map((item: any, index: number) => ({
+              title: item.title,
+              url: item.url,
+              description: item.description,
+              source: new URL(item.url).hostname,
+              relevance: 1 - (index * 0.1), // Decrease relevance for each subsequent result
+            }));
+            sources.push(...searchResults);
+          }
+        } catch (error) {
+          console.error('Error processing search results:', error);
+        }
+      });
+
+      setSearchSources(sources);
+      sources.forEach(source => addSource(source));
+    }
+  }, [message.toolInvocations, addSource]);
+
   useEffect(() => {
     if (message.toolInvocations) {
       message.toolInvocations.forEach((toolInvocation: any) => {
@@ -213,32 +254,14 @@ const PurePreviewMessage = ({
 
                     return (
                       <div key={toolCallId}>
-                        {toolName === 'getWeather' ? (
-                          <Weather weatherAtLocation={result} />
-                        ) : toolName === 'createDocument' ? (
-                          <DocumentPreview
-                            isReadonly={isReadonly}
-                            result={result}
-                          />
-                        ) : toolName === 'updateDocument' ? (
-                          <DocumentToolResult
-                            type="update"
-                            result={result}
-                            isReadonly={isReadonly}
-                          />
-                        ) : toolName === 'requestSuggestions' ? (
-                          <DocumentToolResult
-                            type="request-suggestions"
-                            result={result}
-                            isReadonly={isReadonly}
-                          />
-                        ) : toolName === 'search' ? (
+                        {toolName === 'search' ? (
                           <SearchResults
                             results={result.data.map((item: any) => ({
                               title: item.title,
                               url: item.url,
                               description: item.description,
                               source: new URL(item.url).hostname,
+                              favicon: item.favicon,
                             }))}
                           />
                         ) : toolName === 'extract' ? (
@@ -270,9 +293,7 @@ const PurePreviewMessage = ({
                               ? 'Research completed successfully.'
                               : `Research may have failed: ${result.error}`}
                           </div>
-                        ) : (
-                          <pre>{JSON.stringify(result, null, 2)}</pre>
-                        )}
+                        ) : null}
                       </div>
                     );
                   }
@@ -283,23 +304,7 @@ const PurePreviewMessage = ({
                         skeleton: ['getWeather'].includes(toolName),
                       })}
                     >
-                      {toolName === 'getWeather' ? (
-                        <Weather />
-                      ) : toolName === 'createDocument' ? (
-                        <DocumentPreview isReadonly={isReadonly} args={args} />
-                      ) : toolName === 'updateDocument' ? (
-                        <DocumentToolCall
-                          type="update"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'requestSuggestions' ? (
-                        <DocumentToolCall
-                          type="request-suggestions"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'extract' ? (
+                      {toolName === 'extract' ? (
                         <ExtractResults results={[]} isLoading={true} />
                       ) : toolName === 'scrape' ? (
                         <ScrapeResults
@@ -307,6 +312,8 @@ const PurePreviewMessage = ({
                           data=""
                           isLoading={true}
                         />
+                      ) : toolName === 'search' ? (
+                        <SearchResults results={[]} isLoading={true} />
                       ) : toolName === 'deepResearch' ? (
                         <DeepResearchProgress
                           state={state}

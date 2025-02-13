@@ -27,7 +27,10 @@ import { SuggestedActions } from './suggested-actions';
 import equal from 'fast-deep-equal';
 import { useDeepResearch } from '@/lib/deep-research-context';
 import { DeepResearch } from './deep-research';
-import { Telescope } from 'lucide-react';
+import { Telescope, Search } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
+
+type SearchMode = 'search' | 'deep-research';
 
 function PureMultimodalInput({
   chatId,
@@ -42,6 +45,8 @@ function PureMultimodalInput({
   append,
   handleSubmit,
   className,
+  searchMode,
+  setSearchMode,
 }: {
   chatId: string;
   input: string;
@@ -63,10 +68,13 @@ function PureMultimodalInput({
     chatRequestOptions?: ChatRequestOptions,
   ) => void;
   className?: string;
+  searchMode: SearchMode;
+  setSearchMode: (mode: SearchMode) => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
   const { state: deepResearchState } = useDeepResearch();
+
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -122,7 +130,7 @@ function PureMultimodalInput({
 
     handleSubmit(undefined, {
       experimental_attachments: attachments,
-      experimental_deepResearch: true,
+      experimental_deepResearch: searchMode === 'deep-research',
     });
 
     setAttachments([]);
@@ -139,6 +147,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
+    searchMode,
   ]);
 
   const uploadFile = async (file: File) => {
@@ -232,13 +241,14 @@ function PureMultimodalInput({
       )}
 
       <div className="flex flex-col gap-2">
-        <DeepResearch
-          isActive={true}
+        {searchMode === 'deep-research' && <DeepResearch
+          isActive={searchMode === 'deep-research'}
           onToggle={() => {}}
           isLoading={isLoading}
           activity={deepResearchState.activity}
           sources={deepResearchState.sources}
-        />
+          deepResearch={searchMode === 'deep-research'}
+        />}
 
         <Textarea
           ref={textareaRef}
@@ -269,7 +279,26 @@ function PureMultimodalInput({
 
       <div className="absolute bottom-0 p-2 flex flex-row gap-2 justify-start items-center">
         <AttachmentsButton fileInputRef={fileInputRef} isLoading={isLoading} />
-        <DeepResearchButton />
+        <Tabs value={searchMode} onValueChange={(value) => {
+          setSearchMode(value as SearchMode);
+        }}>
+          <TabsList className="bg-transparent border rounded-full p-1 h-fit">
+            <TabsTrigger 
+              value="search" 
+              className="rounded-full px-3 py-1.5 h-fit flex items-center gap-2 data-[state=inactive]:bg-transparent data-[state=active]:bg-orange-50 hover:bg-orange-50/50 data-[state=active]:text-orange-600 border-0 data-[state=active]:shadow-none transition-colors"
+            >
+              <Search size={14} />
+              Search
+            </TabsTrigger>
+            <TabsTrigger 
+              value="deep-research"
+              className="rounded-full px-3 py-1.5 h-fit flex items-center gap-2 data-[state=inactive]:bg-transparent data-[state=active]:bg-orange-50 hover:bg-orange-50/50 data-[state=active]:text-orange-600 border-0 data-[state=active]:shadow-none transition-colors"
+            >
+              <Telescope size={14} />
+              Deep Research
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
@@ -293,7 +322,7 @@ export const MultimodalInput = memo(
     if (prevProps.input !== nextProps.input) return false;
     if (prevProps.isLoading !== nextProps.isLoading) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
-
+    if (prevProps.searchMode !== nextProps.searchMode) return false;
     return true;
   },
 );
@@ -374,18 +403,3 @@ const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
   if (prevProps.input !== nextProps.input) return false;
   return true;
 });
-
-function PureDeepResearchButton() {
-  return (
-    <Button
-      className="rounded-full px-3 py-1.5 h-fit flex items-center gap-2 bg-orange-50 hover:bg-orange-100 text-orange-600 border-0 disabled:opacity-100 disabled:cursor-not-allowed"
-      variant="ghost"
-      disabled
-    >
-      <Telescope size={14} />
-      Using Deep Research
-    </Button>
-  );
-}
-
-const DeepResearchButton = memo(PureDeepResearchButton);
