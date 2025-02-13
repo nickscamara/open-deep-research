@@ -20,6 +20,7 @@
   "dependencies": {
     "@ai-sdk/deepseek": "^0.1.8",
     "@ai-sdk/openai": "1.1.9",
+    "@ai-sdk/openai-compatible": "^0.1.9",
     "@ai-sdk/togetherai": "^0.1.9",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-python": "^6.1.6",

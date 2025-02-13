@@ -3,6 +3,7 @@ import { experimental_wrapLanguageModel as wrapLanguageModel } from 'ai';
 import { openrouter } from '@openrouter/ai-sdk-provider';
 import { togetherai } from '@ai-sdk/togetherai';
 import { deepseek } from '@ai-sdk/deepseek';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 import { customMiddleware } from "./custom-middleware";
 // Type definition for valid reasoning models used for research and structured outputs
@@ -12,6 +13,8 @@ type ReasoningModel = typeof VALID_REASONING_MODELS[number];
 const VALID_REASONING_MODELS = [
   'o1', 'o1-mini', 'o3-mini',
   'deepseek-ai/DeepSeek-R1',
+  'deepseek-r1',
+  'deepseek-reasoner',
   'gpt-4o'
 ] as const;
 
@@ -23,8 +26,16 @@ export const supportsJsonOutput = (modelId: string) =>
   JSON_SUPPORTED_MODELS.includes(modelId as typeof JSON_SUPPORTED_MODELS[number]);
 
 // Get reasoning model from env, with JSON support info
-const REASONING_MODEL = process.env.REASONING_MODEL || 'o1-mini';
+const REASONING_MODEL = process.env.REASONING_MODEL || 'o3-mini';
 const BYPASS_JSON_VALIDATION = process.env.BYPASS_JSON_VALIDATION === 'true';
+
+const DEEPSEEK_API_BASE = process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com';
+
+const deepseekComp = createOpenAICompatible({
+  name: 'deepseekComp',
+  apiKey: process.env.DEEPSEEK_API_KEY || '',
+  baseURL: DEEPSEEK_API_BASE,
+});
 
 // Helper to get the reasoning model based on user's selected model
 function getReasoningModel(modelId: string) {
@@ -36,7 +47,7 @@ function getReasoningModel(modelId: string) {
   const configuredModel = REASONING_MODEL;
 
   if (!VALID_REASONING_MODELS.includes(configuredModel as ReasoningModel)) {
-    const fallback = 'o1-mini';
+    const fallback = 'o3-mini';
     console.warn(`Invalid REASONING_MODEL "${configuredModel}", falling back to ${fallback}`);
     return fallback;
   }
@@ -64,8 +75,8 @@ export const customModel = (apiIdentifier: string, forReasoning: boolean = false
   }
 
   // Select provider based on model
-  const model = modelId === 'deepseek-ai/DeepSeek-R1'
-    ? togetherai(modelId)
+  const model = modelId.toLowerCase().includes('deepseek')
+    ? deepseekComp(modelId)
     : openai(modelId);
 
   return wrapLanguageModel({
