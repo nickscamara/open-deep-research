@@ -18,12 +18,9 @@ async function createAnonymousUser() {
     await createUser(anonymousEmail, anonymousPassword);
     
     // Then verify the user was created by fetching it
-    const users = await getUser(anonymousEmail);
-    if (users.length === 0) {
-      throw new Error('User was not created successfully');
-    }
+    const [user] = await getUser(anonymousEmail);
+    return user;
     
-    return users[0];
   } catch (error) {
     console.error('Failed to create anonymous user:', error);
     // Instead of returning null, throw an error to prevent auth from proceeding
