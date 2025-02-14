@@ -170,6 +170,7 @@ const PurePreviewMessage = ({
         initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         data-role={message.role}
+        data-message={message.id}
       >
         <div
           className={cn(
