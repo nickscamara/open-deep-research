@@ -2,6 +2,7 @@
 
 import { type CoreUserMessage, generateText } from 'ai';
 import { cookies } from 'next/headers';
+import { models, reasoningModels } from '@/lib/ai/models';
 
 import { customModel } from '@/lib/ai';
 import {
@@ -13,7 +14,12 @@ import { VisibilityType } from '@/components/visibility-selector';
 
 export async function saveModelId(model: string) {
   const cookieStore = await cookies();
-  cookieStore.set('model-id', model);
+  if (models.some((m) => m.id === model)) {
+    cookieStore.set('model-id', model);
+  }
+  if (reasoningModels.some((m) => m.id === model)) {
+    cookieStore.set('reasoning-model-id', model);
+  }
 }
 
 export async function generateTitleFromUserMessage({
