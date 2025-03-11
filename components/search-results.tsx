@@ -179,7 +179,7 @@ export function SearchResults({
     }
   }, [isLoading]);
 
-  if (!results.length && !isLoading) return null;
+  if (!results?.length && !isLoading) return null;
 
   return (
     <div className="w-full">
