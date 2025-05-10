@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI, openai as defaultOpenai} from '@ai-sdk/openai';
 import { experimental_wrapLanguageModel as wrapLanguageModel } from 'ai';
 import { openrouter } from '@openrouter/ai-sdk-provider';
 import { togetherai } from '@ai-sdk/togetherai';
@@ -27,6 +27,11 @@ const BYPASS_JSON_VALIDATION = process.env.BYPASS_JSON_VALIDATION === 'true';
 
 // Helper to get the reasoning model based on user's selected model
 function getReasoningModel(modelId: string) {
+  // If we are using a custom openai endpoint, allow any model
+  if (process.env.CUSTOM_OPENAI_REASONING_MODEL) {
+    return process.env.CUSTOM_OPENAI_REASONING_MODEL;
+  }
+
   // If already using a valid reasoning model, keep using it
   if (VALID_REASONING_MODELS.includes(modelId as ReasoningModel)) {
     return modelId;
@@ -47,6 +52,17 @@ function getReasoningModel(modelId: string) {
 
   return configuredModel;
 }
+
+// Create a custom OpenAI client if CUSTOM_OPENAI_URL is defined
+const openai = process.env.CUSTOM_OPENAI_URL
+    ? createOpenAI({
+      baseURL: process.env.CUSTOM_OPENAI_URL,
+      apiKey:
+        process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== '****' ? process.env.OPENAI_API_KEY : undefined,
+      name: 'custom-openai',
+      compatibility: 'compatible',
+    })
+    : defaultOpenai;
 
 export const customModel = (apiIdentifier: string, forReasoning: boolean = false) => {
   // Check which API key is available
