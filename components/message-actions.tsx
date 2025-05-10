@@ -37,8 +37,8 @@ export function PureMessageActions({
     return null;
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex flex-row gap-2">
+    <div className="message-actions flex flex-row gap-2 items-center">
+      <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -54,8 +54,8 @@ export function PureMessageActions({
           </TooltipTrigger>
           <TooltipContent>Copy</TooltipContent>
         </Tooltip>
-      </div>
-    </TooltipProvider>
+      </TooltipProvider>
+    </div>
   );
 }
 
