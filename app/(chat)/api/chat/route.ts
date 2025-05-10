@@ -317,7 +317,9 @@ export async function POST(request: Request) {
             }),
             execute: async ({ topic, maxDepth = 7 }) => {
               const startTime = Date.now();
-              const timeLimit = 4.5 * 60 * 1000; // 4 minutes 30 seconds in milliseconds
+              let maxResearchDuration = Number(process.env.NEXT_PUBLIC_MAX_DURATION) || 5;  // 4 minutes 30 seconds in milliseconds for timeLimit
+              if (maxResearchDuration > 0.5) maxResearchDuration -= 0.5;
+              const timeLimit = maxResearchDuration * 60 * 1000;
 
               const researchState = {
                 findings: [] as Array<{ text: string; source: string }>,
