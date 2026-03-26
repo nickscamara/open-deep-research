@@ -96,14 +96,7 @@ FIRECRAWL_API_KEY=               # not required for self-hosted CRW
 FIRECRAWL_API_URL=http://localhost:3002
 ```
 
-3. Update the FirecrawlApp initialization in `app/(chat)/api/chat/route.ts`:
-
-```ts
-const app = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY || '',
-  apiUrl: process.env.FIRECRAWL_API_URL || undefined,
-});
-```
+3. Start the app — it picks up `FIRECRAWL_API_URL` automatically, no code changes needed.
 
 ### Using fastcrw.com (managed cloud)
 
@@ -114,7 +107,7 @@ FIRECRAWL_API_KEY=fc-your-key-here
 FIRECRAWL_API_URL=https://api.fastcrw.com
 ```
 
-The same code change above applies — just pass `apiUrl` to the `FirecrawlApp` constructor.
+Set the environment variables above, then restart the app — no code changes needed.
 
 > **Note:** CRW supports the `/v1/scrape`, `/v1/search`, `/v1/crawl`, and `/v1/map` endpoints used by the Firecrawl JS SDK. The `search` and `scrape` tools work out of the box. The `extract` tool requires an LLM-powered pipeline which CRW handles via its `/v1/scrape` endpoint with `formats: ["json"]`.
 
