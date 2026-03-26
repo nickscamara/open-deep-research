@@ -76,6 +76,40 @@ pnpm dev
 
 Your app template should now be running on [localhost:3000](http://localhost:3000/).
 
+## Using CRW as an Alternative to Firecrawl
+
+[CRW](https://github.com/us/crw) is an open-source, Firecrawl-compatible web scraper built in Rust. Single binary, ~6 MB idle RAM, no Redis or Node.js required. You can use it as a drop-in replacement for Firecrawl — either self-hosted or via the managed cloud at [fastcrw.com](https://fastcrw.com).
+
+### Self-hosted
+
+1. Install and start the CRW server:
+
+```bash
+cargo install crw-server
+crw-server
+```
+
+2. Point Open Deep Research to your local CRW instance by adding `FIRECRAWL_API_URL` to your `.env` file:
+
+```bash
+FIRECRAWL_API_KEY=               # not required for self-hosted CRW
+FIRECRAWL_API_URL=http://localhost:3002
+```
+
+3. Start the app — it picks up `FIRECRAWL_API_URL` automatically, no code changes needed.
+
+### Using fastcrw.com (managed cloud)
+
+If you prefer a hosted solution, sign up at [fastcrw.com](https://fastcrw.com) and set:
+
+```bash
+FIRECRAWL_API_KEY=fc-your-key-here
+FIRECRAWL_API_URL=https://api.fastcrw.com
+```
+
+Set the environment variables above, then restart the app — no code changes needed.
+
+> **Note:** CRW supports the `/v1/scrape`, `/v1/search`, `/v1/crawl`, and `/v1/map` endpoints used by the Firecrawl JS SDK. The `search` and `scrape` tools work out of the box. The `extract` tool requires an LLM-powered pipeline which CRW handles via its `/v1/scrape` endpoint with `formats: ["json"]`.
 
 # Models dependencies
 
