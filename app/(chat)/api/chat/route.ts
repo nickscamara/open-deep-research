@@ -49,8 +49,21 @@ const firecrawlTools: AllowedTools[] = ['search', 'extract', 'scrape'];
 
 const allTools: AllowedTools[] = [...firecrawlTools, 'deepResearch'];
 
+// Web data provider. Defaults to Firecrawl. fastCRW is a Firecrawl-compatible
+// web scraper (single binary; self-host or cloud) — set CRW_API_KEY (and
+// optionally CRW_API_URL for self-host) to route requests through it instead.
+// Additive: when no CRW config is present, behavior is unchanged.
+const crwApiKey = process.env.CRW_API_KEY;
+const crwApiUrl =
+  process.env.CRW_API_URL || (crwApiKey ? 'https://fastcrw.com/api' : undefined);
+
 const app = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY || '',
+  apiKey: crwApiKey || process.env.FIRECRAWL_API_KEY || '',
+  // Custom base URL (Firecrawl self-host or fastCRW). Falls back to Firecrawl
+  // cloud when unset.
+  ...(crwApiUrl || process.env.FIRECRAWL_API_URL
+    ? { apiUrl: crwApiUrl || process.env.FIRECRAWL_API_URL }
+    : {}),
 });
 
 // const reasoningModel = customModel(process.env.REASONING_MODEL || 'o1-mini', true);
