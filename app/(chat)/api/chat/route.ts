@@ -281,16 +281,27 @@ export async function POST(request: Request) {
                 }
 
                 const data = await response.json();
-                const results = (data.results || []).map((result: any) => {
-                  const url = new URL(result.url);
-                  const favicon = `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
-                  return {
-                    title: result.title || '',
-                    url: result.url,
-                    description: result.snippet || result.content || '',
-                    favicon,
-                  };
-                });
+                // MINIMAL: ceiling — no pagination, no rate-limit retry. Upgrade
+                // path: add exponential backoff + cursor-based pagination if needed.
+                const results = (data.results || [])
+                  .filter((result: any) => {
+                    try {
+                      new URL(result.url);
+                      return true;
+                    } catch {
+                      return false;
+                    }
+                  })
+                  .map((result: any) => {
+                    const url = new URL(result.url);
+                    const favicon = `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
+                    return {
+                      title: result.title || '',
+                      url: result.url,
+                      description: result.snippet || result.content || '',
+                      favicon,
+                    };
+                  });
 
                 return {
                   data: results,
