@@ -41,11 +41,12 @@ import FirecrawlApp from '@mendable/firecrawl-js';
 type AllowedTools =
   | 'deepResearch'
   | 'search'
+  | 'youcom_search'
   | 'extract'
   | 'scrape';
 
 
-const firecrawlTools: AllowedTools[] = ['search', 'extract', 'scrape'];
+const firecrawlTools: AllowedTools[] = ['search', 'youcom_search', 'extract', 'scrape'];
 
 const allTools: AllowedTools[] = [...firecrawlTools, 'deepResearch'];
 
@@ -230,6 +231,85 @@ export async function POST(request: Request) {
               } catch (error: any) {
                 return {
                   error: `Search failed: ${error.message}`,
+                  success: false,
+                };
+              }
+            },
+          },
+          youcom_search: {
+            description:
+              'Search the web using You.com. Returns titles, URLs, and snippets. Use as an alternative to the default search tool.',
+            parameters: z.object({
+              query: z
+                .string()
+                .describe('Search query to find relevant web pages'),
+              maxResults: z
+                .number()
+                .optional()
+                .describe('Maximum number of results to return (default 5)'),
+            }),
+            execute: async ({ query, maxResults = 5 }) => {
+              try {
+                const apiKey = process.env.YDC_API_KEY;
+                if (!apiKey) {
+                  return {
+                    error: 'YDC_API_KEY is not set',
+                    success: false,
+                  };
+                }
+
+                const response = await fetch(
+                  'https://api.you.com/v1/agents/search',
+                  {
+                    method: 'POST',
+                    headers: {
+                      'X-API-Key': apiKey,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      query,
+                      max_results: maxResults,
+                    }),
+                  },
+                );
+
+                if (!response.ok) {
+                  return {
+                    error: `You.com search failed: ${response.status} ${response.statusText}`,
+                    success: false,
+                  };
+                }
+
+                const data = await response.json();
+                // MINIMAL: ceiling — no pagination, no rate-limit retry. Upgrade
+                // path: add exponential backoff + cursor-based pagination if needed.
+                const results = (data.results || [])
+                  .filter((result: any) => {
+                    try {
+                      new URL(result.url);
+                      return true;
+                    } catch {
+                      return false;
+                    }
+                  })
+                  .map((result: any) => {
+                    const url = new URL(result.url);
+                    const favicon = `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
+                    return {
+                      title: result.title || '',
+                      url: result.url,
+                      description: result.snippet || result.content || '',
+                      favicon,
+                    };
+                  });
+
+                return {
+                  data: results,
+                  success: true,
+                };
+              } catch (error: any) {
+                return {
+                  error: `You.com search failed: ${error.message}`,
                   success: false,
                 };
               }
