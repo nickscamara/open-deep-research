@@ -32,22 +32,7 @@ import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 
 type SearchMode = 'search' | 'deep-research';
 
-function PureMultimodalInput({
-  chatId,
-  input,
-  setInput,
-  isLoading,
-  stop,
-  attachments,
-  setAttachments,
-  messages,
-  setMessages,
-  append,
-  handleSubmit,
-  className,
-  searchMode,
-  setSearchMode,
-}: {
+export interface MultimodalInputProps {
   chatId: string;
   input: string;
   setInput: (value: string) => void;
@@ -70,7 +55,24 @@ function PureMultimodalInput({
   className?: string;
   searchMode: SearchMode;
   setSearchMode: (mode: SearchMode) => void;
-}) {
+}
+
+function PureMultimodalInput({
+  chatId,
+  input,
+  setInput,
+  isLoading,
+  stop,
+  attachments,
+  setAttachments,
+  messages,
+  setMessages,
+  append,
+  handleSubmit,
+  className,
+  searchMode,
+  setSearchMode,
+}: MultimodalInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
   const { state: deepResearchState } = useDeepResearch();
@@ -316,15 +318,31 @@ function PureMultimodalInput({
   );
 }
 
+export function areMultimodalInputPropsEqual(
+  prevProps: MultimodalInputProps,
+  nextProps: MultimodalInputProps,
+) {
+  return (
+    prevProps.chatId === nextProps.chatId &&
+    prevProps.input === nextProps.input &&
+    prevProps.setInput === nextProps.setInput &&
+    prevProps.isLoading === nextProps.isLoading &&
+    prevProps.stop === nextProps.stop &&
+    equal(prevProps.attachments, nextProps.attachments) &&
+    prevProps.setAttachments === nextProps.setAttachments &&
+    prevProps.messages === nextProps.messages &&
+    prevProps.setMessages === nextProps.setMessages &&
+    prevProps.append === nextProps.append &&
+    prevProps.handleSubmit === nextProps.handleSubmit &&
+    prevProps.className === nextProps.className &&
+    prevProps.searchMode === nextProps.searchMode &&
+    prevProps.setSearchMode === nextProps.setSearchMode
+  );
+}
+
 export const MultimodalInput = memo(
   PureMultimodalInput,
-  (prevProps, nextProps) => {
-    if (prevProps.input !== nextProps.input) return false;
-    if (prevProps.isLoading !== nextProps.isLoading) return false;
-    if (!equal(prevProps.attachments, nextProps.attachments)) return false;
-    if (prevProps.searchMode !== nextProps.searchMode) return false;
-    return true;
-  },
+  areMultimodalInputPropsEqual,
 );
 
 function PureAttachmentsButton({
