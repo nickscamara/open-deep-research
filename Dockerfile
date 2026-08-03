@@ -22,5 +22,7 @@ EXPOSE 3000
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Start the application using the startup script
-CMD ["/start.sh"]
+# Start the application using the startup script.
+# Invoke via `sh` so it does not depend on the executable bit or the
+# script's shebang, which can be lost on some checkouts (e.g. Windows/CRLF).
+CMD ["sh", "/start.sh"]
