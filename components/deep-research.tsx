@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { parseWebUrl } from '@/lib/web-url';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DeepResearchProps {
@@ -80,31 +81,41 @@ export function DeepResearch({
 
         <TabsContent value="sources" className="flex-1 overflow-y-auto mt-2">
           <div className="space-y-4 pr-2">
-            {sources.map((source, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col gap-1"
-              >
-                <a
-                  href={source.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium hover:underline break-words"
+            {sources.map((source, index) => {
+              const webUrl = parseWebUrl(source.url);
+
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col gap-1"
                 >
-                  {source.title}
-                </a>
-                <div className="flex items-center gap-2">
-                  <div className="text-xs text-muted-foreground truncate">
-                    {new URL(source.url).hostname}
+                  {webUrl ? (
+                    <a
+                      href={webUrl.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium hover:underline break-words"
+                    >
+                      {source.title}
+                    </a>
+                  ) : (
+                    <span className="text-sm font-medium break-words">
+                      {source.title}
+                    </span>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs text-muted-foreground truncate">
+                      {webUrl?.hostname ?? source.url}
+                    </div>
+                    {/* <div className="text-xs text-muted-foreground">
+                      Relevance: {Math.round(source.relevance * 100)}%
+                    </div> */}
                   </div>
-                  {/* <div className="text-xs text-muted-foreground">
-                    Relevance: {Math.round(source.relevance * 100)}%
-                  </div> */}
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>
