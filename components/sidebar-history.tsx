@@ -46,6 +46,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { removeChatById } from '@/lib/chat-history';
 import type { Chat } from '@/lib/db/schema';
 import { fetcher } from '@/lib/utils';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
@@ -169,18 +170,17 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter();
   const handleDelete = async () => {
-    const deletePromise = fetch(`/api/chat?id=${deleteId}`, {
+    const chatIdToDelete = deleteId;
+    if (!chatIdToDelete) return;
+
+    const deletePromise = fetch(`/api/chat?id=${chatIdToDelete}`, {
       method: 'DELETE',
     });
 
     toast.promise(deletePromise, {
       loading: 'Deleting chat...',
       success: () => {
-        mutate((history) => {
-          if (history) {
-            return history.filter((h) => h.id !== id);
-          }
-        });
+        mutate((history) => removeChatById(history, chatIdToDelete));
         return 'Chat deleted successfully';
       },
       error: 'Failed to delete chat',
@@ -188,7 +188,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
     setShowDeleteDialog(false);
 
-    if (deleteId === id) {
+    if (chatIdToDelete === id) {
       router.push('/');
     }
   };
