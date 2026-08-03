@@ -89,6 +89,10 @@ export async function PATCH(request: Request) {
 
   const [document] = documents;
 
+  if (!document) {
+    return new Response('Not Found', { status: 404 });
+  }
+
   if (document.userId !== session.user.id) {
     return new Response('Unauthorized', { status: 401 });
   }
