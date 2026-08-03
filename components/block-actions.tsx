@@ -4,19 +4,18 @@ import {
   CopyIcon,
   RedoIcon,
   UndoIcon,
-  ArrowUpIcon,
   DownloadIcon,
 } from './icons';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { toast } from 'sonner';
-import { ConsoleOutput, UIBlock } from './block';
-import { Dispatch, memo, SetStateAction } from 'react';
+import type { ConsoleOutput, UIBlock } from './block';
+import { type Dispatch, memo, type SetStateAction } from 'react';
 import { RunCodeButton } from './run-code-button';
 import { exportToCSV } from '@/lib/spreadsheet';
 
-interface BlockActionsProps {
+export interface BlockActionsProps {
   block: UIBlock;
   handleVersionChange: (type: 'next' | 'prev' | 'toggle' | 'latest') => void;
   currentVersionIndex: number;
@@ -144,11 +143,18 @@ function PureBlockActions({
   );
 }
 
-export const BlockActions = memo(PureBlockActions, (prevProps, nextProps) => {
-  if (prevProps.block.status !== nextProps.block.status) return false;
-  if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex)
-    return false;
-  if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) return false;
+export function areBlockActionsPropsEqual(
+  prevProps: BlockActionsProps,
+  nextProps: BlockActionsProps,
+) {
+  return (
+    prevProps.block === nextProps.block &&
+    prevProps.handleVersionChange === nextProps.handleVersionChange &&
+    prevProps.currentVersionIndex === nextProps.currentVersionIndex &&
+    prevProps.isCurrentVersion === nextProps.isCurrentVersion &&
+    prevProps.mode === nextProps.mode &&
+    prevProps.setConsoleOutputs === nextProps.setConsoleOutputs
+  );
+}
 
-  return true;
-});
+export const BlockActions = memo(PureBlockActions, areBlockActionsPropsEqual);
