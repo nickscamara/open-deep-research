@@ -18,6 +18,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
 import type { Document, Suggestion, Vote } from "@/lib/db/schema";
+import { areBlockPropsEqual } from "@/lib/block-props";
 import { cn, fetcher } from "@/lib/utils";
 
 import { DiffView } from "./diffview";
@@ -33,7 +34,6 @@ import { CodeEditor } from "./code-editor";
 import { Console } from "./console";
 import { useSidebar } from "./ui/sidebar";
 import { useBlock } from "@/hooks/use-block";
-import equal from "fast-deep-equal";
 import { SpreadsheetEditor } from "./spreadsheet-editor";
 
 /** Type representing the possible block kinds: 'text' | 'code' | 'spreadsheet' */
@@ -581,11 +581,4 @@ function PureBlock({
   );
 }
 
-export const Block = memo(PureBlock, (prevProps, nextProps) => {
-  if (prevProps.isLoading !== nextProps.isLoading) return false;
-  if (!equal(prevProps.votes, nextProps.votes)) return false;
-  if (prevProps.input !== nextProps.input) return false;
-  if (!equal(prevProps.messages, nextProps.messages.length)) return false;
-
-  return true;
-});
+export const Block = memo(PureBlock, areBlockPropsEqual);
