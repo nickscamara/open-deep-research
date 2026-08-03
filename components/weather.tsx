@@ -4,6 +4,8 @@ import cx from 'classnames';
 import { format, isWithinInterval } from 'date-fns';
 import { useEffect, useState } from 'react';
 
+import { getForecastStartIndex } from '@/lib/weather';
+
 interface WeatherAtLocation {
   latitude: number;
   longitude: number;
@@ -234,8 +236,10 @@ export function Weather({
   const hoursToShow = isMobile ? 5 : 6;
 
   // Find the index of the current time or the next closest time
-  const currentTimeIndex = weatherAtLocation.hourly.time.findIndex(
-    (time) => new Date(time) >= new Date(weatherAtLocation.current.time),
+  const currentTimeIndex = getForecastStartIndex(
+    weatherAtLocation.hourly.time,
+    weatherAtLocation.current.time,
+    hoursToShow,
   );
 
   // Slice the arrays to get the desired number of items
