@@ -62,6 +62,10 @@ export async function PATCH(request: Request) {
     return new Response('messageId and type are required', { status: 400 });
   }
 
+  if (type !== 'up' && type !== 'down') {
+    return new Response("type must be 'up' or 'down'", { status: 400 });
+  }
+
   const session = await getOrCreateSession();
 
   if (!session?.user) {
