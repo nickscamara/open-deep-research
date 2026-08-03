@@ -1,9 +1,9 @@
-import { openai } from '@ai-sdk/openai';
 import { experimental_wrapLanguageModel as wrapLanguageModel } from 'ai';
 import { openrouter } from '@openrouter/ai-sdk-provider';
 import { togetherai } from '@ai-sdk/togetherai';
 
 import { customMiddleware } from "./custom-middleware";
+import { getOpenAIProvider } from "./openai-provider";
 // Type definition for valid reasoning models used for research and structured outputs
 type ReasoningModel = typeof VALID_REASONING_MODELS[number];
 
@@ -63,6 +63,7 @@ export const customModel = (apiIdentifier: string, forReasoning: boolean = false
   }
 
   // Select provider based on model
+  const openai = getOpenAIProvider();
   const model = modelId === 'deepseek-ai/DeepSeek-R1'
     ? togetherai(modelId)
     : openai(modelId);
