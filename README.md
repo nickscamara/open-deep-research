@@ -97,13 +97,13 @@ The application uses a separate model for reasoning tasks (like research analysi
 
 | Provider | Models | Notes |
 |----------|--------|-------|
-| OpenAI | `gpt-4o`, `o1`, `o3-mini` | Native JSON schema support |
+| OpenAI | `o1`, `o1-mini`, `o3-mini`, `gpt-4o` | Native JSON schema support |
 | TogetherAI | `deepseek-ai/DeepSeek-R1` | Requires `BYPASS_JSON_VALIDATION=true` |
 
 ### Important Notes
 
 - Only certain OpenAI models (gpt-4o, o1, o3-mini) natively support structured JSON outputs
-- Other models (deepseek-reasoner) can be used but may require disabling JSON schema validation
+- `REASONING_MODEL` must be one of the supported identifiers above (`o1`, `o1-mini`, `o3-mini`, `gpt-4o`, `deepseek-ai/DeepSeek-R1`). Note that DeepSeek is configured with the `deepseek-ai/DeepSeek-R1` identifier, not `deepseek-reasoner`
 - When using models that don't support JSON schema:
   - Set `BYPASS_JSON_VALIDATION=true` in your .env file
   - This allows non-OpenAI models to be used for reasoning tasks
@@ -120,10 +120,10 @@ The application uses a separate model for reasoning tasks (like research analysi
 
 Add to your `.env` file:
 ```bash
-# Choose one of: deepseek-reasoner, deepseek-ai/DeepSeek-R1
+# One of: o1, o1-mini, o3-mini, gpt-4o, deepseek-ai/DeepSeek-R1
 REASONING_MODEL=deepseek-ai/DeepSeek-R1
 
-# Required when using models that don't support JSON schema (like deepseek-reasoner)
+# Required when using models that don't support JSON schema (like deepseek-ai/DeepSeek-R1)
 BYPASS_JSON_VALIDATION=true
 ```
 
