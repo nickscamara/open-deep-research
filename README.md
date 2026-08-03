@@ -33,6 +33,16 @@ This template ships with OpenAI `gpt-4o` as the default. However, with the [AI S
 
 This repo is compatible with [OpenRouter](https://openrouter.ai/) and [OpenAI](https://openai.com/). To use OpenRouter, you need to set the `OPENROUTER_API_KEY` environment variable.
 
+### Custom OpenAI-compatible endpoint
+
+If you need to point the OpenAI provider at a custom endpoint (for example Azure OpenAI, a corporate proxy, or a self-hosted OpenAI-compatible gateway), set the `OPENAI_BASE_URL` environment variable:
+
+```bash
+OPENAI_BASE_URL=https://your-endpoint.example.com/v1
+```
+
+`OPENAI_API_BASE` is also accepted as an alias. When neither is set, the default `https://api.openai.com/v1` is used.
+
 ## Function Max Duration
 
 By default, the function timeout is set to 300 seconds (5 minutes). If you're using Vercel's Hobby tier, you'll need to reduce this to 60 seconds. You can adjust this by changing the `MAX_DURATION` environment variable in your `.env` file:
