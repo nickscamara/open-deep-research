@@ -8,14 +8,12 @@ import { cn } from '@/lib/utils';
 
 interface CodeBlockProps {
   node: any;
-  inline: boolean;
-  className: string;
+  className?: string;
   children: any;
 }
 
 export function CodeBlock({
   node,
-  inline,
   className,
   children,
   ...props
@@ -25,9 +23,10 @@ export function CodeBlock({
   const match = /language-(\w+)/.exec(className || '');
   const isPython = match && match[1] === 'python';
   const codeContent = String(children).replace(/\n$/, '');
+  const isInline = !String(children).includes('\n');
   const [tab, setTab] = useState<'code' | 'run'>('code');
 
-  if (!inline) {
+  if (!isInline) {
     return (
       <div className="not-prose flex flex-col">
         {tab === 'code' && (
