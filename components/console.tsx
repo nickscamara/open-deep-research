@@ -11,6 +11,12 @@ import {
 import { ConsoleOutput } from './block';
 import { cn } from '@/lib/utils';
 import { useBlockSelector } from '@/hooks/use-block';
+import {
+  CONSOLE_DEFAULT_HEIGHT,
+  CONSOLE_MAX_HEIGHT,
+  CONSOLE_MIN_HEIGHT,
+  getConsoleHeightForKey,
+} from '@/lib/console-resize';
 
 interface ConsoleProps {
   consoleOutputs: Array<ConsoleOutput>;
@@ -18,14 +24,11 @@ interface ConsoleProps {
 }
 
 export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
-  const [height, setHeight] = useState<number>(300);
+  const [height, setHeight] = useState<number>(CONSOLE_DEFAULT_HEIGHT);
   const [isResizing, setIsResizing] = useState(false);
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
   const isBlockVisible = useBlockSelector((state) => state.isVisible);
-
-  const minHeight = 100;
-  const maxHeight = 800;
 
   const startResizing = useCallback(() => {
     setIsResizing(true);
@@ -39,7 +42,10 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
     (e: MouseEvent) => {
       if (isResizing) {
         const newHeight = window.innerHeight - e.clientY;
-        if (newHeight >= minHeight && newHeight <= maxHeight) {
+        if (
+          newHeight >= CONSOLE_MIN_HEIGHT &&
+          newHeight <= CONSOLE_MAX_HEIGHT
+        ) {
           setHeight(newHeight);
         }
       }
@@ -71,9 +77,20 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
       <div
         className="h-2 w-full fixed cursor-ns-resize z-50"
         onMouseDown={startResizing}
+        onKeyDown={(event) => {
+          const newHeight = getConsoleHeightForKey(height, event.key);
+          if (newHeight !== height) {
+            event.preventDefault();
+            setHeight(newHeight);
+          }
+        }}
         style={{ bottom: height - 4 }}
         role="slider"
-        aria-valuenow={minHeight}
+        aria-label="Resize console"
+        aria-valuemin={CONSOLE_MIN_HEIGHT}
+        aria-valuemax={CONSOLE_MAX_HEIGHT}
+        aria-valuenow={height}
+        tabIndex={0}
       />
 
       <div
