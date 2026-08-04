@@ -25,20 +25,20 @@ function findPositionsInDoc(doc: Node, searchText: string): Position | null {
   let positions: { start: number; end: number } | null = null;
 
   doc.nodesBetween(0, doc.content.size, (node, pos) => {
-    if (node.isText && node.text) {
-      const index = node.text.indexOf(searchText);
+    if (node.isTextblock) {
+      const index = node.textContent.indexOf(searchText);
 
       if (index !== -1) {
         positions = {
-          start: pos + index,
-          end: pos + index + searchText.length,
+          start: pos + 1 + index,
+          end: pos + 1 + index + searchText.length,
         };
-
-        return false;
       }
+
+      return false;
     }
 
-    return true;
+    return positions === null;
   });
 
   return positions;
