@@ -8,6 +8,7 @@ import React, {
   useCallback,
   memo,
 } from 'react';
+import { normalizeSpreadsheetValue } from '@/lib/spreadsheet-data';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon, PlusIcon } from './icons';
 import {
@@ -49,7 +50,7 @@ const PureSpreadsheetEditor = ({
         rows: Array.isArray(parsed.rows)
           ? parsed.rows.map((row: unknown) =>
               Array.isArray(row)
-                ? row.map((cell) => String(cell || ''))
+                ? row.map(normalizeSpreadsheetValue)
                 : new Array(parsed.headers?.length || 3).fill(''),
             )
           : [new Array(3).fill(''), new Array(3).fill('')],
@@ -92,12 +93,12 @@ const PureSpreadsheetEditor = ({
         setData((prevData) => {
           const newData = {
             headers: Array.isArray(parsed.headers)
-              ? parsed.headers.map((h: unknown) => String(h || ''))
+              ? parsed.headers.map(normalizeSpreadsheetValue)
               : prevData.headers,
             rows: Array.isArray(parsed.rows)
               ? parsed.rows.map((row: unknown) =>
                   Array.isArray(row)
-                    ? row.map((cell) => String(cell || ''))
+                    ? row.map(normalizeSpreadsheetValue)
                     : new Array(
                         parsed.headers?.length || prevData.headers.length,
                       ).fill(''),
