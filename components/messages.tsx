@@ -5,8 +5,8 @@ import { useScrollToBottom } from './use-scroll-to-bottom';
 import { Overview } from './overview';
 import { memo } from 'react';
 import { Vote } from '@/lib/db/schema';
-import equal from 'fast-deep-equal';
 import { toast } from 'sonner';
+import { areMessagesPropsEqual } from '@/lib/messages-props';
 
 interface MessagesProps {
   chatId: string;
@@ -92,13 +92,4 @@ function PureMessages({
   );
 }
 
-export const Messages = memo(PureMessages, (prevProps, nextProps) => {
-  if (prevProps.isBlockVisible && nextProps.isBlockVisible) return true;
-
-  if (prevProps.isLoading !== nextProps.isLoading) return false;
-  if (prevProps.isLoading && nextProps.isLoading) return false;
-  if (prevProps.messages.length !== nextProps.messages.length) return false;
-  if (!equal(prevProps.votes, nextProps.votes)) return false;
-
-  return true;
-});
+export const Messages = memo(PureMessages, areMessagesPropsEqual);
