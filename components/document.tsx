@@ -4,6 +4,10 @@ import type { BlockKind } from './block';
 import { FileIcon, LoaderIcon, MessageIcon, PencilEditIcon } from './icons';
 import { toast } from 'sonner';
 import { useBlock } from '@/hooks/use-block';
+import {
+  areDocumentToolCallPropsEqual,
+  areDocumentToolResultPropsEqual,
+} from '@/lib/document-tool-props';
 
 const getActionText = (
   type: 'create' | 'update' | 'request-suggestions',
@@ -84,7 +88,10 @@ function PureDocumentToolResult({
   );
 }
 
-export const DocumentToolResult = memo(PureDocumentToolResult, () => true);
+export const DocumentToolResult = memo(
+  PureDocumentToolResult,
+  areDocumentToolResultPropsEqual,
+);
 
 interface DocumentToolCallProps {
   type: 'create' | 'update' | 'request-suggestions';
@@ -148,4 +155,7 @@ function PureDocumentToolCall({
   );
 }
 
-export const DocumentToolCall = memo(PureDocumentToolCall, () => true);
+export const DocumentToolCall = memo(
+  PureDocumentToolCall,
+  areDocumentToolCallPropsEqual,
+);
