@@ -1,12 +1,15 @@
 'use client';
 
-import { isAfter } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useSWRConfig } from 'swr';
 import { useWindowSize } from 'usehooks-ts';
 
 import type { Document } from '@/lib/db/schema';
+import {
+  getRestoredDocumentVersions,
+  restoreDocumentVersion,
+} from '@/lib/document-versions';
 import { getDocumentTimestampByIndex } from '@/lib/utils';
 
 import type { UIBlock } from './block';
@@ -56,35 +59,36 @@ export const VersionFooter = ({
           onClick={async () => {
             setIsMutating(true);
 
-            mutate(
-              `/api/document?id=${block.documentId}`,
-              await fetch(`/api/document?id=${block.documentId}`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                  timestamp: getDocumentTimestampByIndex(
-                    documents,
-                    currentVersionIndex,
-                  ),
-                }),
-              }),
-              {
-                optimisticData: documents
-                  ? [
-                      ...documents.filter((document) =>
-                        isAfter(
-                          new Date(document.createdAt),
-                          new Date(
-                            getDocumentTimestampByIndex(
-                              documents,
-                              currentVersionIndex,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]
-                  : [],
-              },
+            const cacheKey = `/api/document?id=${block.documentId}`;
+            const restoredDocuments = getRestoredDocumentVersions(
+              documents,
+              currentVersionIndex,
             );
+
+            try {
+              await mutate<Array<Document>>(
+                cacheKey,
+                () =>
+                  restoreDocumentVersion(documents, currentVersionIndex, () =>
+                    fetch(cacheKey, {
+                      method: 'PATCH',
+                      body: JSON.stringify({
+                        timestamp: getDocumentTimestampByIndex(
+                          documents,
+                          currentVersionIndex,
+                        ),
+                      }),
+                    }),
+                  ),
+                {
+                  optimisticData: restoredDocuments,
+                  rollbackOnError: true,
+                  revalidate: true,
+                },
+              );
+            } finally {
+              setIsMutating(false);
+            }
           }}
         >
           <div>Restore this version</div>
