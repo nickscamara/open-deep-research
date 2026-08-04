@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { areToolbarPropsEqual } from '@/lib/toolbar-props';
 import { sanitizeUIMessages } from '@/lib/utils';
 
 import {
@@ -548,10 +549,4 @@ const PureToolbar = ({
   );
 };
 
-export const Toolbar = memo(PureToolbar, (prevProps, nextProps) => {
-  if (prevProps.isLoading !== nextProps.isLoading) return false;
-  if (prevProps.isToolbarVisible !== nextProps.isToolbarVisible) return false;
-  if (prevProps.blockKind !== nextProps.blockKind) return false;
-
-  return true;
-});
+export const Toolbar = memo(PureToolbar, areToolbarPropsEqual);
