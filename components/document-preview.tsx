@@ -20,6 +20,7 @@ import { CodeEditor } from './code-editor';
 import { useBlock } from '@/hooks/use-block';
 import equal from 'fast-deep-equal';
 import { SpreadsheetEditor } from './spreadsheet-editor';
+import { getLatestDocument } from '@/lib/document-preview';
 
 interface DocumentPreviewProps {
   isReadonly: boolean;
@@ -38,7 +39,10 @@ export function DocumentPreview({
     Array<Document>
   >(result ? `/api/document?id=${result.id}` : null, fetcher);
 
-  const previewDocument = useMemo(() => documents?.[0], [documents]);
+  const previewDocument = useMemo(
+    () => getLatestDocument(documents),
+    [documents],
+  );
   const hitboxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
