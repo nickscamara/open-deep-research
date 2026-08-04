@@ -91,7 +91,7 @@ export function ExtractResults({
     }
 
     const formatted = formatValue(value);
-    if (formatted.includes('\\n') || formatted.length > 100) {
+    if (formatted.includes('\n') || formatted.length > 100) {
       return (
         <pre className="text-sm whitespace-pre-wrap break-words bg-muted/50 rounded-md p-2">
           {formatted}
