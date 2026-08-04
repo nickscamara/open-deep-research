@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import type { CreateMessage, Message } from 'ai';
 import type { ChatRequestOptions } from '@/lib/types';
 import { memo } from 'react';
+import { areSuggestedActionsPropsEqual } from '@/lib/suggested-actions-props';
 
 interface SuggestedActionsProps {
   chatId: string;
@@ -63,4 +64,7 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
   );
 }
 
-export const SuggestedActions = memo(PureSuggestedActions, () => true);
+export const SuggestedActions = memo(
+  PureSuggestedActions,
+  areSuggestedActionsPropsEqual,
+);
