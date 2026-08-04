@@ -8,6 +8,7 @@ import { initialBlockData, useBlock } from '@/hooks/use-block';
 import { useUserMessageId } from '@/hooks/use-user-message-id';
 import { cx } from 'class-variance-authority';
 import { useDeepResearch } from '@/lib/deep-research-context';
+import { getMostRecentUserMessageId } from '@/lib/user-message-ids';
 
 type DataStreamDelta = {
   type:
@@ -46,7 +47,7 @@ type DataStreamDelta = {
 };
 
 export function DataStreamHandler({ id }: { id: string }) {
-  const { data: dataStream } = useChat({ id });
+  const { data: dataStream, messages } = useChat({ id });
   const { setUserMessageIdFromServer } = useUserMessageId();
   const { setBlock } = useBlock();
   const { addActivity, addSource } = useDeepResearch();
@@ -60,7 +61,11 @@ export function DataStreamHandler({ id }: { id: string }) {
 
     (newDeltas as DataStreamDelta[]).forEach((delta: DataStreamDelta) => {
       if (delta.type === 'user-message-id') {
-        setUserMessageIdFromServer(delta.content as string);
+        const clientMessageId = getMostRecentUserMessageId(messages);
+
+        if (clientMessageId) {
+          setUserMessageIdFromServer(clientMessageId, delta.content as string);
+        }
         return;
       }
 
@@ -173,6 +178,7 @@ export function DataStreamHandler({ id }: { id: string }) {
     setUserMessageIdFromServer,
     addActivity,
     addSource,
+    messages,
   ]);
 
   return null;
