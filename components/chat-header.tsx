@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { VisibilityType, VisibilitySelector } from './visibility-selector';
 import { useDeepResearch } from '@/lib/deep-research-context';
 import { models, reasoningModels } from '@/lib/ai/models';
+import { areChatHeaderPropsEqual } from '@/lib/chat-header-props';
 
 function PureChatHeader({
   chatId,
@@ -154,6 +155,4 @@ function PureChatHeader({
   );
 }
 
-export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId && prevProps.selectedReasoningModelId === nextProps.selectedReasoningModelId;
-});
+export const ChatHeader = memo(PureChatHeader, areChatHeaderPropsEqual);
