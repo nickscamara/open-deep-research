@@ -25,7 +25,7 @@ export function MessageEditor({
   setMessages,
   reload,
 }: MessageEditorProps) {
-  const { userMessageIdFromServer } = useUserMessageId();
+  const { getUserMessageId } = useUserMessageId();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [draftContent, setDraftContent] = useState<string>(message.content);
@@ -74,7 +74,7 @@ export function MessageEditor({
           disabled={isSubmitting}
           onClick={async () => {
             setIsSubmitting(true);
-            const messageId = userMessageIdFromServer ?? message.id;
+            const messageId = getUserMessageId(message.id);
 
             if (!messageId) {
               toast.error('Something went wrong, please try again!');
